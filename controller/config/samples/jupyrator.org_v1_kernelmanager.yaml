@@ -1,0 +1,42 @@
+apiVersion: jupyrator.org/v1
+kind: KernelManager
+metadata:
+  labels:
+    app.kubernetes.io/name: kernel-manager-controller
+    app.kubernetes.io/managed-by: kustomize
+    jupyrator.org/kernelmanager-name: "kernel-433a87be-0f91-45c1-9609-02b6af80baf8"
+  name: kernel-433a87be-0f91-45c1-9609-02b6af80baf8
+spec:
+  # The kernel manager will cull idle kernels after this many seconds
+  idleTimeoutSeconds: 120
+  # The kernel manager culls idle kernels every this many seconds
+  cullingIntervalSeconds: 30
+  # The kernelConnectionConfig is used to connect to the kernel
+  kernelConnectionConfig:
+    ip: 0.0.0.0
+    shellPort: 52318
+    iopubPort: 52317
+    stdinPort: 52319
+    controlPort: 52321
+    hbPort: 52320
+    kernelId: 433a87be-0f91-45c1-9609-02b6af80baf8
+    key: 433a87be-0f91-45c1-9609-02b6af80baf8
+    transport: tcp
+    signatureScheme: hmac-sha256
+    kernelName: kernel-433a87be-0f91-45c1-9609-02b6af80baf8
+  # The path of the kernel connection file
+  mountPath: /tmp
+  template:
+    spec:
+      containers:
+      - image: elyra/kernel-py:3.2.3
+        command: 
+          - python
+          - -m
+          - ipykernel
+          - -f
+          - /tmp/kernel-433a87be-0f91-45c1-9609-02b6af80baf8.json
+        name: main
+        workingDir: /mnt/data
+      restartPolicy: Never
+      serviceAccountName: default-editor

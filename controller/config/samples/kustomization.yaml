@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- jupyrator.org_v1_kernelmanager.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples
