@@ -1,1 +1,1 @@
-# jupyrator
+# JuPyRator
