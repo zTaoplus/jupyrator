@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - image: elyra/kernel-py:3.2.3
-        command: 
+        command:
           - python
           - -m
           - ipykernel

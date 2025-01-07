@@ -24,8 +24,8 @@ more details: [uv-installation](https://docs.astral.sh/uv/getting-started/instal
 ### Install dependencies
 
 ```sh
-# cd <project> 
-uv sync 
+# cd <project>
+uv sync
 ```
 
 ## Usage

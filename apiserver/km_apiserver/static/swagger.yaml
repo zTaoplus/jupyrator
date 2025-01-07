@@ -167,7 +167,7 @@ paths:
         schema:
           type: string
         description: ID of the kernel
-    
+
     get:
       summary: Get kernel information
       responses:
@@ -220,4 +220,4 @@ paths:
                 type: array
                 items:
                   type: string
-                  enum: [python] 
+                  enum: [python]

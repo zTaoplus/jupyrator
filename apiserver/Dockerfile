@@ -10,11 +10,11 @@ WORKDIR /app
 
 
 COPY uv.lock pyproject.toml .
-RUN uv sync --no-cache  && rm uv.lock pyproject.toml -f 
+RUN uv sync --no-cache  && rm uv.lock pyproject.toml -f
 
 
-# We have set tool.uv.package=false in pyproject.toml to avoid installing the project package, 
-# allowing the source code layer to be copied after dependency installation. This approach also better utilizes Docker's cache layers and 
+# We have set tool.uv.package=false in pyproject.toml to avoid installing the project package,
+# allowing the source code layer to be copied after dependency installation. This approach also better utilizes Docker's cache layers and
 # speeds up the build process since changes in the code do not invalidate the dependency layer.
 COPY km_apiserver ./km_apiserver
 

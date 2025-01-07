@@ -3,7 +3,7 @@
 all: help
 
 lint:
-	uv run ruff check --output-format concise . 
+	uv run ruff check --output-format concise .
 
 format:
 	uv run ruff check --output-format concise --fix .
