@@ -1,0 +1,44 @@
+
+# Support for uv is not yet available. see https://docs.astral.sh/uv/guides7/integration/dependency-bots/#dependabot
+# so use the cron job to update the uv lockfile
+# see https://github.com/dependabot/dependabot-core/issues/10478#issuecomment-2434963744
+# copied from https://github.com/EdmundGoodman/update-bot/blob/main/.github/workflows/update-bot.yaml
+name: uv-lock-update-bot
+
+on:
+  workflow_dispatch:
+  # Set the schedule, for example every week at 8:00am on Monday
+  schedule:
+    - cron: 0 8 * * 1
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-uv-lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+
+      - name: Update uv lockfile and create output file
+        run: |
+          cd apiserver
+          echo "\`\`\`" > uv_output.md
+          uv lock --upgrade 2>&1 | tee -a uv_output.md
+          echo "\`\`\`" >> uv_output.md
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'builds(deps): Update apiserver uv lockfile'
+          title: 'builds(deps): Update apiserver uv lockfile'
+          body-path: apiserver/uv_output.md
+          branch: apiserver-update-uv-lock
+          base: main
+          labels: dependencies,uv-lock
+          delete-branch: true
+          add-paths: apiserver/uv.lock
