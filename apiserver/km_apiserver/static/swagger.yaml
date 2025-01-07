@@ -1,0 +1,223 @@
+openapi: 3.0.0
+info:
+  title: Multi Kernel Manager API
+  description: API for managing Jupyter kernels
+  version: 1.0.0
+
+servers:
+  - url: /
+
+components:
+  schemas:
+    KernelPayload:
+      type: object
+      properties:
+        name:
+          type: string
+          enum: [python]
+          description: Name of the kernel specification
+        env:
+          type: object
+          description: Environment variables for the kernel. Only variables with prefix "KERNEL_" will be extracted, others are ignored
+          additionalProperties:
+            type: string
+      required:
+        - name
+        - env
+
+    KernelResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the kernel
+        name:
+          type: string
+          description: Generated kernel name including the ID
+        last_activity:
+          type: string
+          format: date-time
+          description: Last activity timestamp of the kernel
+        execution_state:
+          type: string
+          enum: [idle, starting]
+          description: Current execution state of the kernel
+        connections:
+          type: integer
+          description: Number of active connections to the kernel
+      required:
+        - id
+        - name
+        - last_activity
+        - execution_state
+        - connections
+
+    Error:
+      type: object
+      properties:
+        reason:
+          type: string
+        message:
+          type: string
+
+  securitySchemes:
+    userHeader:
+      type: apiKey
+      in: header
+      name: X-Forwarded-User
+      description: User identification header
+
+security:
+  - userHeader: []
+
+paths:
+  /api/kernels:
+    get:
+      summary: List all running kernels
+      responses:
+        '200':
+          description: List of running kernels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KernelResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new kernel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KernelPayload'
+      responses:
+        '200':
+          description: Kernel created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KernelResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Unauthorized
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete multiple kernels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                kernel_ids:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - kernel_ids
+      responses:
+        '200':
+          description: Kernels deleted successfully
+        '400':
+          description: Invalid request
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/kernels/{kernel_id}:
+    parameters:
+      - name: kernel_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: ID of the kernel
+    
+    get:
+      summary: Get kernel information
+      responses:
+        '200':
+          description: Kernel information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KernelResponse'
+        '404':
+          description: Kernel not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete a kernel
+      responses:
+        '200':
+          description: Kernel deleted successfully
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/kernelspecs:
+    get:
+      summary: Get available kernel specifications
+      responses:
+        '200':
+          description: List of available kernel specifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  enum: [python] 
